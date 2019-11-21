@@ -13,7 +13,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_descr = f.read()
 
 setup(name='eurostat',
-      version='0.1',
+      version='0.1.1',
       license='MIT',
       date='2019',
       description="Eurostat Python Package",
@@ -40,10 +40,7 @@ setup(name='eurostat',
       python_requires='>=3.6',
       install_requires=[
           'pandasdmx',
-          'pandas'
-          'gzip',
-          're',
-          'urllib',
+          'pandas',
           ],
       packages=find_packages(),
       project_urls={
