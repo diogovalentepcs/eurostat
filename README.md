@@ -41,9 +41,9 @@ Example:
 ```
 
 
-## Read a dataset from the main database (ec.europa.eu/eurostat):
+## Read a dataset from the main database:
 
-# As a list of tuples:
+### As a list of tuples:
 
 ```python
 eurostat.get_data(code, flags=False)
@@ -68,7 +68,7 @@ Example:
   ...]
 ```
 
-# As a pandas dataframe:
+### As a pandas dataframe:
 
 ```python
 eurostat.get_data_df(code, flags=False)
@@ -178,7 +178,7 @@ Example:
 
 ## Read a dataset from the SDMX service:
 
-# As a list of tuples:
+### As a list of tuples:
 
 ```python
 eurostat.get_sdmx_data(code, StartPeriod, EndPeriod, filter_pars, verbose=False)
@@ -205,7 +205,16 @@ Progress:100.0%
  ...]
 ```
 
-# As a pandas dataframe:
+### As a pandas dataframe:
+
+```python
+eurostat.get_sdmx_data(code, StartPeriod, EndPeriod, filter_pars, verbose=False)
+```
+
+Read a dataset from SDMX service. Return a pandas dataframe.
+This service is slow, so you will better select the subset you need and set the filter parameters along the available dimensions by setting filter_pars (a dictionary where keys are dimensions names, values are lists).
+It allows to download some datasets that are not available from the main database.
+To see a rough progress indication, set verbose = True.
 
 ```python
 >>> import eurostat
@@ -232,9 +241,9 @@ Progress:100.0%
 ```
 
 
-# Bug reports and feature requests:
+## Bug reports and feature requests:
 
-Please [open an issue].
+Please [open an issue][] or send a message to noemi.cazzaniga [[at]] polimi.it .
 
 
 ## Disclaimer:

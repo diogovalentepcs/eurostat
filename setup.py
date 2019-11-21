@@ -21,7 +21,7 @@ setup(name='eurostat',
       long_description_content_type='text/markdown'
       author='Noemi Emanuela Cazzaniga',
       author_email='noemi.cazzaniga@polimi.it',
-      url='https://bitbucket.org/noemicazzaniga/eurostat/',
+      url='https://bitbucket.org/noemicazzaniga/eurostat/src/master/',
       keywords='eurostat comext statistics data economics science',
       classifiers=[
           'Development Status :: 5 - Production/Stable',
@@ -47,6 +47,6 @@ setup(name='eurostat',
           ],
       packages=setuptools.find_packages(),
       project_urls={
-          'Source': 'https://bitbucket.org/noemicazzaniga/eurostat/',
+          'Source': 'https://bitbucket.org/noemicazzaniga/eurostat/src/master/',
       },
       )
