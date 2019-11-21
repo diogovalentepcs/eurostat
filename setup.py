@@ -5,7 +5,7 @@
 """
 
 
-from setuptools import setup
+from setuptools import setup, find_packages
 from os import path
 
 here = path.abspath(path.dirname(__file__))
@@ -15,10 +15,10 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 setup(name='eurostat',
       version='0.1',
       license='MIT',
-      date='2019'
+      date='2019',
       description="Eurostat Python Package",
       long_description=long_descr,
-      long_description_content_type='text/markdown'
+      long_description_content_type='text/markdown',
       author='Noemi Emanuela Cazzaniga',
       author_email='noemi.cazzaniga@polimi.it',
       url='https://bitbucket.org/noemicazzaniga/eurostat/src/master/',
@@ -45,7 +45,7 @@ setup(name='eurostat',
           're',
           'urllib',
           ],
-      packages=setuptools.find_packages(),
+      packages=find_packages(),
       project_urls={
           'Source': 'https://bitbucket.org/noemicazzaniga/eurostat/src/master/',
       },
