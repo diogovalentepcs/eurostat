@@ -4,7 +4,7 @@ Tools to read data from Eurostat website.
 
 # Features
 
-* Read Eurostat data and metadata as list of tuples.
+* Read Eurostat data and metadata as list of tuples or as a pandas dataframe.
 * MIT license.
 
 # Documentation
@@ -20,6 +20,8 @@ pip install eurostat
 
 
 ## Read the table of contents of the main database:
+
+### As a list of tuples:
 
 ```python
 eurostat.get_toc()
@@ -40,6 +42,60 @@ Example:
  ('Construction - quarterly data', 'ei_bsbu_q_r2', 'dataset', '30.10.2019', '30.10.2019', '1981Q1', '2019Q4')]
 ```
 
+### As a pandas dataframe:
+
+
+```python
+eurostat.get_toc_df()
+```
+
+Read the table of contents and return a list of tuples. The first element of the list contains the header line. Dates are represented as strings.
+
+Example:
+
+```python
+>>> import eurostat
+>>> toc_df = eurostat.get_toc_df()
+>>> toc_df
+                                                  title  ... data end
+0                                    Database by themes  ...         
+1                       General and regional statistics  ...         
+2     European and national indicators for short-ter...  ...         
+3     Business and consumer surveys (source: DG ECFIN)   ...         
+4                   Consumer surveys (source: DG ECFIN)  ...         
+                                                ...  ...      ...
+9860  Enterprises that provided training to develop/...  ...     2018
+9861  Participation in education and training - cont...  ...         
+9862  Enterprises providing training by type of trai...  ...     2015
+9863  Participants in CVT courses by sex and size cl...  ...     2015
+9864  Main skills targeted by CVT courses by type of...  ...     2015
+```
+
+You may also want to extract the datasets that pertains a topic. In that case, you can use:
+
+```python
+eurostat.subset_toc_df(toc_df, keyword)
+```
+
+Extract from toc_df the row where 'title' contains 'keyword' (case-insensitive).
+Example:
+
+```python
+>>> f = eurostat.subset_toc_df(toc_df, 'fleet')
+>>> f
+title, code, type, last update of data, last table structure change, data start, data end
+                                               title              code       type  ... data end
+5631                                   Fishing fleet        fish_fleet     folder  ...         
+5632  Fishing fleet by age, length and gross tonnage    fish_fleet_alt    dataset  ...     2018
+5633  Fishing fleet by type of gear and engine power     fish_fleet_gp    dataset  ...     2018
+6246   Commercial aircraft fleet by type of aircraft   avia_eq_arc_typ    dataset  ...     2017
+6247    Commercial aircraft fleet by age of aircraft   avia_eq_arc_age    dataset  ...     2017
+7849                    Fishing fleet, total tonnage          tag00083      table  ...     2018
+7850                Fishing Fleet, Number of Vessels          tag00116      table  ...     2018
+```
+
+Note that, in the above example, the first returned row represents a folder, not a dataset.
+
 
 ## Read a dataset from the main database:
 
@@ -49,8 +105,8 @@ Example:
 eurostat.get_data(code, flags=False)
 ```
 
-Read a dataset from the main database (available from the [bulk download facility]) and returns it as a list of tuples. The first element of the list ("the first row") is the data header.
-Pay attention: the data format changes if flags is True or not.
+Read a dataset from the main database (available from the [bulk download facility][bulkdown]) and returns it as a list of tuples. The first element of the list ("the first row") is the data header.
+Pay attention: the data format changes if flags is True or not. Flag meanings can be found [here][abbr].
 
 Example:
 
@@ -63,8 +119,8 @@ Example:
   ...]
 >>> data = eurostat.get_data('demo_r_d2jan', True)
 >>> data
-[('unit', 'sex', 'age', 'geo\\time', 2018, 2017, 2016, 2015, 2014, ...),
- ('NR', 'F', 'TOTAL', 'AL', '1431715 ', ': ', '1417141 ', '1424597 ', '1430827 ', ...),
+[('unit', 'sex', 'age', 'geo\\time', '2018_value', '2017_flag', '2017_value', '2018_flag', '2016_value', '2016_flag', ...),
+ ('NR', 'F', 'TOTAL', 'AL', 1431715.0, '', 1423050.0, 'c', 1417141.0, '', 1424597.0, '', ...),
   ...]
 ```
 
@@ -74,8 +130,8 @@ Example:
 eurostat.get_data_df(code, flags=False)
 ```
 
-Read a dataset from the main database (available from the [bulk download facility]) and returns it as a pandas dataframe.
-Pay attention: the data format changes if flags is True or not.
+Read a dataset from the main database (available from the [bulk download facility][bulkdown]) and returns it as a pandas dataframe.
+Flag meanings can be found [here][abbr].
 
 Example:
 
@@ -83,32 +139,32 @@ Example:
 >>> import eurostat
 >>> df = eurostat.get_data_df('demo_r_d2jan')
 >>> df
-       unit   sex     age geo\time  ...     1993     1992  1991  1990
-0        NR     F   TOTAL       AL  ...      NaN      NaN   NaN   NaN
-1        NR     F   TOTAL      AL0  ...      NaN      NaN   NaN   NaN
-2        NR     F   TOTAL     AL01  ...      NaN      NaN   NaN   NaN
-3        NR     F   TOTAL     AL02  ...      NaN      NaN   NaN   NaN
-4        NR     F   TOTAL     AL03  ...      NaN      NaN   NaN   NaN
-    ...   ...     ...      ...  ...      ...      ...   ...   ...
-168608   NR     T  Y_OPEN     UKM8  ...      NaN      NaN   NaN   NaN
-168609   NR     T  Y_OPEN     UKM9  ...      NaN      NaN   NaN   NaN
-168610   NR     T  Y_OPEN      UKN  ...  17934.0  17566.0   NaN   NaN
-168611   NR     T  Y_OPEN     UKN0  ...  17934.0  17566.0   NaN   NaN
-168612       None    None     None  ...      NaN      NaN   NaN   NaN
+       unit sex     age geo\time  ...     1993     1992  1991  1990
+0        NR   F   TOTAL       AL  ...      NaN      NaN   NaN   NaN
+1        NR   F   TOTAL      AL0  ...      NaN      NaN   NaN   NaN
+2        NR   F   TOTAL     AL01  ...      NaN      NaN   NaN   NaN
+3        NR   F   TOTAL     AL02  ...      NaN      NaN   NaN   NaN
+4        NR   F   TOTAL     AL03  ...      NaN      NaN   NaN   NaN
+    ...  ..     ...      ...  ...      ...      ...   ...   ...
+168607   NR   T  Y_OPEN     UKM7  ...      NaN      NaN   NaN   NaN
+168608   NR   T  Y_OPEN     UKM8  ...      NaN      NaN   NaN   NaN
+168609   NR   T  Y_OPEN     UKM9  ...      NaN      NaN   NaN   NaN
+168610   NR   T  Y_OPEN      UKN  ...  17934.0  17566.0   NaN   NaN
+168611   NR   T  Y_OPEN     UKN0  ...  17934.0  17566.0   NaN   NaN
 >>> df = eurostat.get_data_df('demo_r_d2jan', True)
 >>> df
-       unit   sex     age geo\time  ...    1993    1992  1991  1990
-0        NR     F   TOTAL       AL  ...      :       :     :     : 
-1        NR     F   TOTAL      AL0  ...      :       :     :     : 
-2        NR     F   TOTAL     AL01  ...      :       :     :     : 
-3        NR     F   TOTAL     AL02  ...      :       :     :     : 
-4        NR     F   TOTAL     AL03  ...      :       :     :     : 
-    ...   ...     ...      ...  ...     ...     ...   ...   ...
-168608   NR     T  Y_OPEN     UKM8  ...      :       :     :     : 
-168609   NR     T  Y_OPEN     UKM9  ...      :       :     :     : 
-168610   NR     T  Y_OPEN      UKN  ...  17934   17566     :     : 
-168611   NR     T  Y_OPEN     UKN0  ...  17934   17566     :     : 
-168612       None    None     None  ...    None    None  None  None
+       unit sex     age geo\time  ...  1992_value 1992_flag  1991_value 1991_flag  1990_value 1990_flag
+0        NR   F   TOTAL       AL  ...        NaN         :         NaN         :         NaN         :
+1        NR   F   TOTAL      AL0  ...        NaN         :         NaN         :         NaN         :
+2        NR   F   TOTAL     AL01  ...        NaN         :         NaN         :         NaN         :
+3        NR   F   TOTAL     AL02  ...        NaN         :         NaN         :         NaN         :
+4        NR   F   TOTAL     AL03  ...        NaN         :         NaN         :         NaN         :
+    ...  ..     ...      ...  ...         ...       ...       ...         ...       ...
+168607   NR   T  Y_OPEN     UKM7  ...        NaN         :         NaN         :         NaN         :
+168608   NR   T  Y_OPEN     UKM8  ...        NaN         :         NaN         :         NaN         :
+168609   NR   T  Y_OPEN     UKM9  ...        NaN         :         NaN         :         NaN         :
+168610   NR   T  Y_OPEN      UKN  ...    17566.0                   NaN         :         NaN         :
+168611   NR   T  Y_OPEN     UKN0  ...    17566.0                   NaN         :         NaN         :
 ```
 
 
@@ -136,7 +192,7 @@ Example:
 ```
 
 
-## Read the Eurostat dimensions of a dataset via SDMX service:
+## Read the Eurostat dimensions of a dataset that is available via SDMX service:
 
 ```python
 eurostat.get_sdmx_dims(code)
@@ -173,6 +229,11 @@ Example:
  'Q': 'Quarterly',
  'S': 'Semi-annual',
  'W': 'Weekly'}
+>>> flags = eurostat.get_sdmx_dic('DS-066341', 'OBS_STATUS')
+>>> flags
+{'-': 'not applicable or real zero or zero by default',
+ '0': 'less than half of the unit used',
+ 'na': 'not available'}
 ```
 
 
@@ -181,12 +242,12 @@ Example:
 ### As a list of tuples:
 
 ```python
-eurostat.get_sdmx_data(code, StartPeriod, EndPeriod, filter_pars, verbose=False)
+eurostat.get_sdmx_data(code, StartPeriod, EndPeriod, filter_pars, flags=False, verbose=True)
 ```
 
-Read a dataset from SDMX service. Return a list of tuples. The first tuple (row) contains the header.
+Read a dataset from SDMX service, with or without the flags. Return a list of tuples. The first tuple (row) contains the header.
 This service is slow, so you will better select the subset you need and set the filter parameters along the available dimensions by setting filter_pars (a dictionary where keys are dimensions names, values are lists).
-It allows to download some datasets that are not available from the main database.
+It allows to download some datasets that are not available from the main database (e.g., Comext).
 To see a rough progress indication, set verbose = True.
 
 ```python
@@ -194,7 +255,7 @@ To see a rough progress indication, set verbose = True.
 >>> StartPeriod = 2007
 >>> EndPeriod = 2008
 >>> filter_pars = {'FREQ': ['A',], 'PRCCODE': ['08111250','08111150']}
->>> data = eurostat.get_sdmx_data('DS-066341', StartPeriod, EndPeriod, filter_pars, verbose=True)
+>>> data = eurostat.get_sdmx_data('DS-066341', StartPeriod, EndPeriod, filter_pars, flags = False, verbose=True)
 Progress: 0.0%
 Progress:50.0%
 Progress:100.0%
@@ -208,12 +269,12 @@ Progress:100.0%
 ### As a pandas dataframe:
 
 ```python
-eurostat.get_sdmx_data(code, StartPeriod, EndPeriod, filter_pars, verbose=False)
+eurostat.get_sdmx_data_df(code, StartPeriod, EndPeriod, filter_pars, flags=False, verbose=True)
 ```
 
-Read a dataset from SDMX service. Return a pandas dataframe.
+Read a dataset from SDMX service, with or without the flags. Return a pandas dataframe.
 This service is slow, so you will better select the subset you need and set the filter parameters along the available dimensions by setting filter_pars (a dictionary where keys are dimensions names, values are lists).
-It allows to download some datasets that are not available from the main database.
+It allows to download some datasets that are not available from the main database (e.g., Comext).
 To see a rough progress indication, set verbose = True.
 
 ```python
@@ -221,29 +282,29 @@ To see a rough progress indication, set verbose = True.
 >>> StartPeriod = 2007
 >>> EndPeriod = 2008
 >>> filter_pars = {'FREQ': ['A',], 'PRCCODE': ['08111250','08111150']}
->>> df = get_sdmx_data_df(code, StartPeriod, EndPeriod, filter_pars, verbose=True)
+>>> df = eurostat.get_sdmx_data_df('DS-066341', StartPeriod, EndPeriod, filter_pars, flags = True, verbose=True)
 Progress: 0.0%
 Progress:50.0%
 Progress:100.0%
 >>> df
-    INDICATORS DECL   PRCCODE FREQ        2007        2008
-0       EXPQNT  001  08111250    A  10219200.0  16082600.0
-1       EXPVAL  001  08111250    A   1697160.0   1875920.0
-2       IMPQNT  001  08111250    A   7526000.0   4272200.0
-3       IMPVAL  001  08111250    A   1802940.0   1208030.0
-4     PQNTBASE  001  08111250    A         0.0         0.0
-..         ...  ...       ...  ...         ...         ...
-875    PRODQNT  600  08111150    A         0.0         0.0
-876    PRODVAL  600  08111150    A         0.0         0.0
-877   PVALBASE  600  08111150    A         0.0         0.0
-878   PVALFLAG  600  08111150    A         NaN         NaN
-879    QNTUNIT  600  08111150    A         NaN         NaN
+    INDICATORS DECL   PRCCODE FREQ        2007 2007_OBS_STATUS        2008 2008_OBS_STATUS
+0       EXPQNT  001  08111250    A  10219200.0                  16082600.0                
+1       EXPVAL  001  08111250    A   1697160.0                   1875920.0                
+2       IMPQNT  001  08111250    A   7526000.0                   4272200.0                
+3       IMPVAL  001  08111250    A   1802940.0                   1208030.0                
+4     PQNTBASE  001  08111250    A         0.0                         0.0                
+..         ...  ...       ...  ...         ...             ...         ...             ...
+875    PRODQNT  600  08111150    A         0.0                         0.0                
+876    PRODVAL  600  08111150    A         0.0                         0.0                
+877   PVALBASE  600  08111150    A         0.0                         0.0                
+878   PVALFLAG  600  08111150    A         NaN              na         NaN              na
+879    QNTUNIT  600  08111150    A         NaN                         NaN                
 ```
 
 
 ## Bug reports and feature requests:
 
-Please [open an issue][] or send a message to noemi.cazzaniga [[at]] polimi.it .
+Please [open an issue][issue] or send a message to noemi.cazzaniga [at] polimi.it .
 
 
 ## Disclaimer:
@@ -257,12 +318,13 @@ Download and usage of Eurostat data is subject to Eurostat's general copyright n
 * Eurostat nomenclatures: [RAMON][ram] metadata.
 * Eurostat Interactive Data Explorer: [Data Explorer][expl].
 * Eurostat Interactive Tool for Comext Data: [Easy Comext][comext].
+* Eurostat acronyms: [Symbols and abbreviations][abbr].
 
 
 ## References:
 
 * R package [eurostat][es]: R Tools for Eurostat Open Data.
-* Python package [pandaSDMX] [pandasdmx]: Statistical Data and Metadata eXchange.
+* Python package [pandaSDMX][pandasdmx]: Statistical Data and Metadata eXchange.
 * Python package [pandas][pd]: Python Data Analysis Library.
 
 [pol]: https://ec.europa.eu/eurostat/web/main/about/our-partners/copyright
@@ -272,6 +334,9 @@ Download and usage of Eurostat data is subject to Eurostat's general copyright n
 [ram]: https://ec.europa.eu/eurostat/ramon/nomenclatures/index.cfm?TargetUrl=LST_NOM&StrGroupCode=SCL&StrLanguageCode=EN
 [expl]: http://appsso.eurostat.ec.europa.eu/nui/
 [comext]: http://epp.eurostat.ec.europa.eu/newxtweb/
+[bulkcomext]: https://ec.europa.eu/eurostat/estat-navtree-portlet-prod/BulkDownloadListing?sort=1&dir=comext%2FCOMEXT_DATA%2FPRODUCTS
 [pandasdmx]: https://pandasdmx.readthedocs.io/en/stable/
 [pd]: https://pandas.pydata.org/
 [es]: http://ropengov.github.io/eurostat/
+[issue]: https://bitbucket.org/noemicazzaniga/eurostat/issues/new
+[abbr]: https://ec.europa.eu/eurostat/statistics-explained/index.php/Tutorial:Symbols_and_abbreviations
