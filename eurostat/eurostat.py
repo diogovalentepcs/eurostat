@@ -60,7 +60,10 @@ def get_data(code, flags=False):
         for l in raw_data.split('\n'):
             l = l.split(',')
             if j == 0:
-                l[n_text_fields:] = [int(i) for i in l[n_text_fields:]]
+                try:
+                    l[n_text_fields:] = [int(i) for i in l[n_text_fields:]]
+                except:
+                    l[n_text_fields:] = [i for i in l[n_text_fields:]]
                 j += 1
             else:
                 l[n_text_fields:] = [float(i) if i!='' else None for i in l[n_text_fields:]]
