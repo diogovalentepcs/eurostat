@@ -5,7 +5,8 @@
 """
 
 
-from urllib.request import urlopen
+from urllib.request import urlopen,ProxyHandler,HTTPBasicAuthHandler,build_opener,install_opener,HTTPHandler
+from urllib.parse import quote
 from pandas import DataFrame
 from pandasdmx import Request
 from itertools import product
@@ -14,9 +15,56 @@ from re import sub
 
 
 
+def setproxy(proxyinfo):
+    """
+    Set the proxies for urllib.
+    If a proxy is required: proxyinfo = {'http': [username, password, url:port],
+                                         'https': [username, password, url:port]}.
+    If authentication is not needed, set username and password = None.
+    Install the opener.
+    Return None.
+    """
+    
+    proxydic = {}
+    if 'http' in proxyinfo.keys():
+        myhttpproxy = proxyinfo['http'][2]
+        if ':' not in myhttpproxy:
+            print("Error in proxy host. It must be in the form: 'url:port'")
+            return
+        try:
+            myhttpuser = proxyinfo['http'][0]
+            myhttpquotedpass = quote(proxyinfo['http'][1])
+            myhttpproxy = myhttpuser + ':' + myhttpquotedpass + '@' + myhttpproxy
+        except:
+            pass
+        proxydic.update({'http': 'http://'+myhttpproxy})
+    if 'https' in proxyinfo.keys():
+        myhttpsproxy = proxyinfo['https'][2]
+        if ':' not in myhttpsproxy:
+            print("Error in proxy host. It must be in the form: 'url:port'")
+            return
+        try:
+            myhttpsuser = proxyinfo['https'][0]
+            myhttpsquotedpass = quote(proxyinfo['https'][1])
+            myhttpsproxy = myhttpsuser + ':' + myhttpsquotedpass + '@' + myhttpsproxy
+        except:
+            pass
+        proxydic.update({'https': 'https://'+myhttpsproxy})
+    if len(proxydic) == 0:
+        print("Error in proxyinfo.")
+        return
+    proxy = ProxyHandler(proxydic)
+    auth = HTTPBasicAuthHandler()
+    opener = build_opener(proxy, auth, HTTPHandler)
+    install_opener(opener)
+    return
+
+
+
+
 def get_data(code, flags=False):
     """
-    Download an Eurostat dataset.
+    Download an Eurostat dataset (of given code).
     Return it as a list of tuples.
     """
 
@@ -74,9 +122,10 @@ def get_data(code, flags=False):
 
 
 
+
 def get_data_df(code, flags=False):
     """
-    Download an Eurostat dataset.
+    Download an Eurostat dataset (of given code).
     Return it as a Pandas dataframe.
     """
     
@@ -89,9 +138,10 @@ def get_data_df(code, flags=False):
 
 
 
+
 def get_dic(code):
     """
-    Download an Eurostat dictionary.
+    Download an Eurostat dictionary (of a given code).
     Return it as a dictionary.
     """
 
@@ -107,6 +157,7 @@ def get_dic(code):
             dic.append(tuple(d))
 
     return dict(dic)
+
 
 
 
@@ -152,11 +203,13 @@ def subset_toc_df(toc_df, keyword):
 
 def get_sdmx_dims(code):
     """
-    Download the Eurostat dimension names of a dataset available via SDMX service.
+    Download the Eurostat dimension names of a dataset (of a give coed) available via SDMX service.
     Return them as a list.
     """
     
-    estat = Request('ESTAT', timeout = 100.)
+    from urllib.request import _opener #load ex-novo the built/modified opener
+    proxydic = _opener.handle_open['http'][0].proxies if _opener else None
+    estat = Request('ESTAT', timeout = 100., proxies = proxydic)
     try:
         structure = estat.datastructure('DSD_'+code)
     except Exception:
@@ -183,11 +236,13 @@ def get_sdmx_dims(code):
 
 def get_sdmx_dic(code, dim):
     """
-    Download the Eurostat dimension values with their meaning of a dataset available via SDMX service.
+    Download the Eurostat dimension values with their meaning of a dataset of  given code available via SDMX service.
     Return them as a dictionary.
     """
     
-    estat = Request('ESTAT', timeout = 100.)
+    from urllib.request import _opener #load ex-novo the built/modified opener
+    proxydic = _opener.handle_open['http'][0].proxies if _opener else None
+    estat = Request('ESTAT', timeout = 100., proxies = proxydic)
     try:
         structure = estat.datastructure('DSD_'+code)
     except Exception:
@@ -208,11 +263,14 @@ def get_sdmx_dic(code, dim):
 
 def get_sdmx_data(code, StartPeriod, EndPeriod, filter_pars, flags=False, verbose=True):
     """
-    Download a subset of an Eurostat dataset available via SDMX service.
+    Download a subset of an Eurostat dataset of a given code available via SDMX service.
+    If http proxy is required: proxyinfo = [username, password, url:port].
     Return it as a list of tuples.
     """
     
-    estat = Request('ESTAT', timeout = 100.)
+    from urllib.request import _opener #load ex-novo the built/modified opener
+    proxydic = _opener.handle_open['http'][0].proxies if _opener else None
+    estat = Request('ESTAT', timeout = 100., proxies = proxydic)
     dims = filter_pars.keys()
     filter_lists = [tuple(zip((d,)*len(filter_pars[str(d)]),filter_pars[str(d)])) for d in dims]
     cart = [el for el in product(*filter_lists)]
@@ -262,7 +320,8 @@ def get_sdmx_data(code, StartPeriod, EndPeriod, filter_pars, flags=False, verbos
 
 def get_sdmx_data_df(code, StartPeriod, EndPeriod, filter_pars, flags=True, verbose=True):
     """
-    Download an Eurostat dataset.
+    Download an Eurostat dataset (of a given code).
+    If http proxy is required: proxyinfo = [username, password, url:port].
     Return it as a Pandas dataframe.
     """
     

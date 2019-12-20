@@ -7,6 +7,7 @@ Tools to read data from Eurostat website.
 * Read Eurostat data and metadata as list of tuples or as a pandas dataframe.
 * MIT license.
 
+
 # Documentation
 
 
@@ -17,6 +18,28 @@ Requires Python 3.6+
 ```bash
 pip install eurostat
 ```
+
+
+## In case you need to use a proxy (new in v.0.1.4):
+
+Before doing anything else, you must configure the proxies.
+
+```python
+eurostat.setproxy(proxyinfo)
+```
+
+It requires in input *proxyinfo*, a dictionary with two keys ('http' and 'https') and values containing the connection parameters in lists.  
+If authentication is not needed, set *username* and *password* to *None*.
+
+Example:
+```python
+>>> import eurostat
+>>> proxyinfo = {'http': [username, password, url:port],
+                 'https': [username, password, url:port]}
+>>> setproxy(proxyinfo)
+```
+
+It always returns *None*.
 
 
 ## Read the table of contents of the main database:
@@ -30,7 +53,6 @@ eurostat.get_toc()
 Read the table of contents and return a list of tuples. The first element of the list contains the header line. Dates are represented as strings.
 
 Example:
-
 ```python
 >>> import eurostat
 >>> toc = eurostat.get_toc()
@@ -49,10 +71,9 @@ Example:
 eurostat.get_toc_df()
 ```
 
-Read the table of contents and return a list of tuples. The first element of the list contains the header line. Dates are represented as strings.
+Read the table of contents of the main database and return a dataframe. Dates are represented as strings.
 
 Example:
-
 ```python
 >>> import eurostat
 >>> toc_df = eurostat.get_toc_df()
@@ -78,8 +99,8 @@ eurostat.subset_toc_df(toc_df, keyword)
 ```
 
 Extract from toc_df the row where 'title' contains 'keyword' (case-insensitive).
-Example:
 
+Example:
 ```python
 >>> f = eurostat.subset_toc_df(toc_df, 'fleet')
 >>> f
@@ -109,7 +130,6 @@ Read a dataset from the main database (available from the [bulk download facilit
 Pay attention: the data format changes if flags is True or not. Flag meanings can be found [here][abbr].
 
 Example:
-
 ```python
 >>> import eurostat
 >>> data = eurostat.get_data('demo_r_d2jan')
@@ -134,7 +154,6 @@ Read a dataset from the main database (available from the [bulk download facilit
 Flag meanings can be found [here][abbr].
 
 Example:
-
 ```python
 >>> import eurostat
 >>> df = eurostat.get_data_df('demo_r_d2jan')
@@ -177,7 +196,6 @@ eurostat.get_dic(code)
 Read the metadata related to a particular code. Return a list of tuples, where the first element of each tuple is the code value and the second one is its description.
 
 Example:
-
 ```python
 >>> import eurostat
 >>> dic = eurostat.get_dic('sex')
@@ -199,8 +217,8 @@ eurostat.get_sdmx_dims(code)
 ```
 
 Read the dimension names of a dataset that is provided via SDMX service. Require the dataset code and return a list.
-Example:
 
+Example:
 ```python
 >>> import eurostat
 >>> dims = eurostat.get_sdmx_dims('DS-066341')
@@ -245,11 +263,12 @@ Example:
 eurostat.get_sdmx_data(code, StartPeriod, EndPeriod, filter_pars, flags=False, verbose=True)
 ```
 
-Read a dataset from SDMX service, with or without the flags. Return a list of tuples. The first tuple (row) contains the header.
-This service is slow, so you will better select the subset you need and set the filter parameters along the available dimensions by setting filter_pars (a dictionary where keys are dimensions names, values are lists).
-It allows to download some datasets that are not available from the main database (e.g., Comext).
-To see a rough progress indication, set verbose = True.
+Read a dataset from SDMX service, with or without the flags. Return a list of tuples. The first tuple (row) contains the header.  
+It allows to download some datasets that are not available from the main database (e.g., Comext).  
+This service is slow, so you will better select the subset you need and set the filter parameters along the available dimensions by setting *filter_pars* (a dictionary where keys are dimensions names, values are lists).  
+To see a rough progress status, set verbose = True.
 
+Example:
 ```python
 >>> import eurostat
 >>> StartPeriod = 2007
@@ -272,11 +291,12 @@ Progress:100.0%
 eurostat.get_sdmx_data_df(code, StartPeriod, EndPeriod, filter_pars, flags=False, verbose=True)
 ```
 
-Read a dataset from SDMX service, with or without the flags. Return a pandas dataframe.
-This service is slow, so you will better select the subset you need and set the filter parameters along the available dimensions by setting filter_pars (a dictionary where keys are dimensions names, values are lists).
-It allows to download some datasets that are not available from the main database (e.g., Comext).
-To see a rough progress indication, set verbose = True.
+Read a dataset from SDMX service, with or without the flags. Return a pandas dataframe.  
+It allows to download some datasets that are not available from the main database (e.g., Comext).  
+This service is slow, so you will better select the subset you need and set the filter parameters along the available dimensions by setting *filter_pars* (a dictionary where keys are dimensions names, values are lists).  
+To see a rough progress status, set verbose = True.
 
+Example:
 ```python
 >>> import eurostat
 >>> StartPeriod = 2007
@@ -326,6 +346,27 @@ Download and usage of Eurostat data is subject to Eurostat's general copyright n
 * R package [eurostat][es]: R Tools for Eurostat Open Data.
 * Python package [pandaSDMX][pandasdmx]: Statistical Data and Metadata eXchange.
 * Python package [pandas][pd]: Python Data Analysis Library.
+
+
+## History:
+
+### version 0.1.4 (20 Dec. 2019):
+
+* Added support to proxy.
+
+### version 0.1.3 (17 Dec. 2019):
+
+* Bug fix (non-annual data headers).
+
+### version 0.1.2 (25 Nov. 2019):
+
+* Possibility to download flags introduced.
+* get_toc_df, subset_toc_df added.
+
+### verion 0.1.1 (21 Nov. 2019):
+
+* First official release.
+
 
 [pol]: https://ec.europa.eu/eurostat/web/main/about/our-partners/copyright
 [cond]: http://ec.europa.eu/geninfo/legal_notices_en.htm
