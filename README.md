@@ -34,8 +34,8 @@ If authentication is not needed, set *username* and *password* to *None*.
 Example:
 ```python
 >>> import eurostat
->>> proxyinfo = {'http': [username, password, url:port],
-                 'https': [username, password, url:port]}
+>>> proxyinfo = {'http': ['myuser', 'mypassword', '123.456.789.012:8012'],
+                 'https': ['myuser', 'mypassword', 'url:port']}
 >>> setproxy(proxyinfo)
 ```
 
@@ -210,6 +210,78 @@ Example:
 ```
 
 
+## Check what datasets are available via SDMX:
+
+### As a list of tuples:
+
+```python
+eurostat.get_avail_sdmx()
+```
+
+Return a list of tuples. The first element of the list contains the header line.
+Example:
+
+```python
+>>> avail_sdmx = eurostat.get_avail_sdmx()
+>>> avail_sdmx
+[('dataflow', 'name'),
+ ('DS-008573', 'Sold production, exports and imports for steel by PRODCOM list (NACE Rev. 1.1) - monthly data'),
+ ('DS-016890', 'EU trade since 1988 by CN8'),
+ ('DS-016893', 'EU trade since 1988 by HS6')
+ ...]
+```
+
+### As a pandas dataframe:
+
+```python
+eurostat.get_avail_sdmx_df()
+```
+
+Return a dataframe with one column. Dataflow (i.e. dataset) codes are in the dataframe index.
+Example:
+
+```python
+>>> avail_sdmx_df = eurostat.get_avail_sdmx_df()
+>>> avail_sdmx_df
+                                                             name
+dataflow                                                         
+DS-008573       Sold production, exports and imports for steel...
+DS-016890                              EU trade since 1988 by CN8
+DS-016893                              EU trade since 1988 by HS6
+DS-016894                          EU trade since 1988 by HS2-HS4
+DS-018995                             EU trade since 1988 by SITC
+                                                          ...
+yth_incl_120    Young people living in households with very lo...
+yth_part_010    Frequency of getting together with relatives o...
+yth_part_020    Frequency of contacts with relatives or friend...
+yth_part_030    Participation of young people in activities of...
+yth_volunt_010  Participation of young people in informal volu...
+```
+
+You may also want to find the datasets that pertains a topic. In that case, you can use:
+
+```python
+eurostat.subset_avail_sdmx_df(avail_sdmx_df, keyword)
+```
+
+Extract the rows where 'name' contains 'keyword' (case-insensitive).
+Example:
+
+```python
+>>> keyword = 'fleet'
+>>> subset = eurostat.subset_avail_sdmx_df(avail_sdmx_df, keyword)
+>>> subset
+                                                           name
+dataflow                                                       
+avia_eq_arc_age    Commercial aircraft fleet by age of aircraft
+avia_eq_arc_typ   Commercial aircraft fleet by type of aircraft
+fish_fleet_alt   Fishing fleet by age, length and gross tonnage
+fish_fleet_gp    Fishing fleet by type of gear and engine power
+tag00083                           Fishing fleet, total tonnage
+tag00116                       Fishing Fleet, Number of Vessels
+```
+
+
 ## Read the Eurostat dimensions of a dataset that is available via SDMX service:
 
 ```python
@@ -238,7 +310,7 @@ Read the Eurostat dimension values with their meaning for a dataset provided via
 Example:
 ```python
 >>> import eurostat
->>> dic = get_sdmx_dic('DS-066341', 'FREQ')
+>>> dic = eurostat.get_sdmx_dic('DS-066341', 'FREQ')
 >>> dic
 {'A': 'Annual',
  'D': 'Daily',
@@ -349,6 +421,11 @@ Download and usage of Eurostat data is subject to Eurostat's general copyright n
 
 
 ## History:
+
+### version 0.1.5 (08 Jan. 2020):
+
+* Bug fix (proxy info).
+* get_avail_sdmx, get_avail_sdmx_df, subset_avail_sdmx_df added.
 
 ### version 0.1.4 (20 Dec. 2019):
 

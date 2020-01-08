@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-@author: Noemi E. Cazzaniga - 2019
+@author: Noemi E. Cazzaniga - 2020
 @email: noemi.cazzaniga@polimi.it
 """
 
@@ -177,6 +177,7 @@ def get_toc():
 
 
 
+
 def get_toc_df():
     """
     Download the Eurostat table of contents.
@@ -208,7 +209,7 @@ def get_sdmx_dims(code):
     """
     
     from urllib.request import _opener #load ex-novo the built/modified opener
-    proxydic = _opener.handle_open['http'][0].proxies if _opener else None
+    proxydic = _opener.handle_open['http'][[isinstance(el, ProxyHandler) for el in _opener.handle_open['http']].index(True)].proxies if _opener else None
     estat = Request('ESTAT', timeout = 100., proxies = proxydic)
     try:
         structure = estat.datastructure('DSD_'+code)
@@ -241,7 +242,7 @@ def get_sdmx_dic(code, dim):
     """
     
     from urllib.request import _opener #load ex-novo the built/modified opener
-    proxydic = _opener.handle_open['http'][0].proxies if _opener else None
+    proxydic = _opener.handle_open['http'][[isinstance(el, ProxyHandler) for el in _opener.handle_open['http']].index(True)].proxies if _opener else None
     estat = Request('ESTAT', timeout = 100., proxies = proxydic)
     try:
         structure = estat.datastructure('DSD_'+code)
@@ -264,12 +265,11 @@ def get_sdmx_dic(code, dim):
 def get_sdmx_data(code, StartPeriod, EndPeriod, filter_pars, flags=False, verbose=True):
     """
     Download a subset of an Eurostat dataset of a given code available via SDMX service.
-    If http proxy is required: proxyinfo = [username, password, url:port].
     Return it as a list of tuples.
     """
     
     from urllib.request import _opener #load ex-novo the built/modified opener
-    proxydic = _opener.handle_open['http'][0].proxies if _opener else None
+    proxydic = _opener.handle_open['http'][[isinstance(el, ProxyHandler) for el in _opener.handle_open['http']].index(True)].proxies if _opener else None
     estat = Request('ESTAT', timeout = 100., proxies = proxydic)
     dims = filter_pars.keys()
     filter_lists = [tuple(zip((d,)*len(filter_pars[str(d)]),filter_pars[str(d)])) for d in dims]
@@ -318,6 +318,7 @@ def get_sdmx_data(code, StartPeriod, EndPeriod, filter_pars, flags=False, verbos
 
 
 
+
 def get_sdmx_data_df(code, StartPeriod, EndPeriod, filter_pars, flags=True, verbose=True):
     """
     Download an Eurostat dataset (of a given code).
@@ -331,3 +332,45 @@ def get_sdmx_data_df(code, StartPeriod, EndPeriod, filter_pars, flags=True, verb
         return DataFrame(d[1:], columns = d[0])
     else:
         return
+
+
+
+
+def get_avail_sdmx_df():
+    """
+    Download the dataflow (list of data available via SDMX).
+    Return it as a pandas dataframe.
+    """
+    
+    from urllib.request import _opener #load ex-novo the built/modified opener
+    proxydic = _opener.handle_open['http'][[isinstance(el, ProxyHandler) for el in _opener.handle_open['http']].index(True)].proxies if _opener else None
+    estat = Request('ESTAT', timeout = 100., proxies = proxydic)
+    df = estat.dataflow().write()['dataflow']
+
+    return df
+
+
+
+
+def get_avail_sdmx():
+    """
+    Download the dataflow (list of data available via SDMX).
+    Return it as list of tuples.
+    """
+    
+    df = get_avail_sdmx_df()
+    l = list(zip(df.index, df['name']))
+    l.insert(0, ('dataflow', 'name'))
+
+    return l
+
+
+
+
+def subset_avail_sdmx_df(avail_sdmx_df, keyword):
+    """
+    Extract from the SDMX dataflow list where the name contains a given keyword.
+    Return a pandas dataframe.
+    """
+    
+    return avail_sdmx_df[avail_sdmx_df['name'].str.contains(keyword, case=False)]

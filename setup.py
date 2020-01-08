@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-@author: Noemi E. Cazzaniga - 2019
+@author: Noemi E. Cazzaniga - 2020
 @email: noemi.cazzaniga@polimi.it
 """
 
@@ -13,9 +13,9 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_descr = f.read()
 
 setup(name='eurostat',
-      version='0.1.4',
+      version='0.1.5',
       license='MIT',
-      date='2019',
+      date='2020',
       description="Eurostat Python Package",
       long_description=long_descr,
       long_description_content_type='text/markdown',
