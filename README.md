@@ -4,7 +4,7 @@ Tools to read data from Eurostat website.
 
 # Features
 
-* Read Eurostat data and metadata as list of tuples or as a pandas dataframe.
+* Read Eurostat data and metadata as list of tuples or as pandas dataframe.
 * MIT license.
 
 
@@ -18,28 +18,6 @@ Requires Python 3.6+
 ```bash
 pip install eurostat
 ```
-
-
-## In case you need to use a proxy (new in v.0.1.4):
-
-Before doing anything else, you must configure the proxies.
-
-```python
-eurostat.setproxy(proxyinfo)
-```
-
-It requires in input *proxyinfo*, a dictionary with two keys ('http' and 'https') and values containing the connection parameters in lists.  
-If authentication is not needed, set *username* and *password* to *None*.
-
-Example:
-```python
->>> import eurostat
->>> proxyinfo = {'http': ['myuser', 'mypassword', '123.456.789.012:8012'],
-                 'https': ['myuser', 'mypassword', 'url:port']}
->>> setproxy(proxyinfo)
-```
-
-It always returns *None*.
 
 
 ## Read the table of contents of the main database:
@@ -65,7 +43,6 @@ Example:
 ```
 
 ### As a pandas dataframe:
-
 
 ```python
 eurostat.get_toc_df()
@@ -265,6 +242,7 @@ eurostat.subset_avail_sdmx_df(avail_sdmx_df, keyword)
 ```
 
 Extract the rows where 'name' contains 'keyword' (case-insensitive).
+
 Example:
 
 ```python
@@ -337,7 +315,7 @@ eurostat.get_sdmx_data(code, StartPeriod, EndPeriod, filter_pars, flags=False, v
 
 Read a dataset from SDMX service, with or without the flags. Return a list of tuples. The first tuple (row) contains the header.  
 It allows to download some datasets that are not available from the main database (e.g., Comext).  
-This service is slow, so you will better select the subset you need and set the filter parameters along the available dimensions by setting *filter_pars* (a dictionary where keys are dimensions names, values are lists).  
+This service is slow, so you will better select a small subset of data and set accordingly the filter parameters along the available dimensions by setting *filter_pars* (a dictionary where keys are dimensions names, values are lists).  
 To see a rough progress status, set verbose = True.
 
 Example:
@@ -365,7 +343,7 @@ eurostat.get_sdmx_data_df(code, StartPeriod, EndPeriod, filter_pars, flags=False
 
 Read a dataset from SDMX service, with or without the flags. Return a pandas dataframe.  
 It allows to download some datasets that are not available from the main database (e.g., Comext).  
-This service is slow, so you will better select the subset you need and set the filter parameters along the available dimensions by setting *filter_pars* (a dictionary where keys are dimensions names, values are lists).  
+This service is slow, so you will better select a small subset of data and set accordingly the filter parameters along the available dimensions by setting *filter_pars* (a dictionary where keys are dimensions names, values are lists).  
 To see a rough progress status, set verbose = True.
 
 Example:
@@ -394,6 +372,28 @@ Progress:100.0%
 ```
 
 
+## In case you need to use a proxy (new in v.0.1.4):
+
+Before doing anything else, you must configure the proxies.
+
+```python
+eurostat.setproxy(proxyinfo)
+```
+
+It requires in input *proxyinfo*, a dictionary with two keys ('http' and 'https') and values containing the connection parameters in lists.  
+If authentication is not needed, set *username* and *password* to *None*.
+
+Example:
+```python
+>>> import eurostat
+>>> proxyinfo = {'http': ['myuser', 'mypassword', '123.456.789.012:8012'],
+                 'https': ['myuser', 'mypassword', 'url:port']}
+>>> setproxy(proxyinfo)
+```
+
+It always returns *None*.
+
+
 ## Bug reports and feature requests:
 
 Please [open an issue][issue] or send a message to noemi.cazzaniga [at] polimi.it .
@@ -410,6 +410,7 @@ Download and usage of Eurostat data is subject to Eurostat's general copyright n
 * Eurostat nomenclatures: [RAMON][ram] metadata.
 * Eurostat Interactive Data Explorer: [Data Explorer][expl].
 * Eurostat Interactive Tool for Comext Data: [Easy Comext][comext].
+* Eurostat PRODCOM website: [PRODCOM][prodcom].
 * Eurostat acronyms: [Symbols and abbreviations][abbr].
 
 
@@ -421,6 +422,10 @@ Download and usage of Eurostat data is subject to Eurostat's general copyright n
 
 
 ## History:
+
+### version 0.2.0 (22 May 2020):
+
+* Improved SDMX download capability in case of slow internet connections.
 
 ### version 0.1.5 (08 Jan. 2020):
 
@@ -437,7 +442,7 @@ Download and usage of Eurostat data is subject to Eurostat's general copyright n
 
 ### version 0.1.2 (25 Nov. 2019):
 
-* Possibility to download flags introduced.
+* Added possibility to download flags.
 * get_toc_df, subset_toc_df added.
 
 ### verion 0.1.1 (21 Nov. 2019):
@@ -458,3 +463,4 @@ Download and usage of Eurostat data is subject to Eurostat's general copyright n
 [es]: http://ropengov.github.io/eurostat/
 [issue]: https://bitbucket.org/noemicazzaniga/eurostat/issues/new
 [abbr]: https://ec.europa.eu/eurostat/statistics-explained/index.php/Tutorial:Symbols_and_abbreviations
+[prodcom]: https://ec.europa.eu/eurostat/web/prodcom

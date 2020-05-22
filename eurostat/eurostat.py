@@ -8,11 +8,13 @@
 from urllib.request import urlopen,ProxyHandler,HTTPBasicAuthHandler,build_opener,install_opener,HTTPHandler
 from urllib.parse import quote
 from pandas import DataFrame
-from pandasdmx import Request
 from itertools import product
 from gzip import decompress
 from re import sub
+from eurostat._decorators import estat_proxy, robust_pandasdmx_request
+import sys
 
+# sys.tracebacklimit = 0
 
 
 def setproxy(proxyinfo):
@@ -74,7 +76,6 @@ def get_data(code, flags=False):
         raw_part_data = list(decompress(response.read()).decode('utf-8').partition("\t"))
     except Exception:
         print("{0} not found in the Eurostat server".format(code))
-        return
     raw_part_data[2] = sub(r"\t", ",", raw_part_data[2])
     n_text_fields = raw_part_data[0].count(",") + 1
     if flags == True:
@@ -204,18 +205,11 @@ def subset_toc_df(toc_df, keyword):
 
 def get_sdmx_dims(code):
     """
-    Download the Eurostat dimension names of a dataset (of a give coed) available via SDMX service.
+    Download the Eurostat dimension names of a dataset (of a given code) available via SDMX service.
     Return them as a list.
     """
     
-    from urllib.request import _opener #load ex-novo the built/modified opener
-    proxydic = _opener.handle_open['http'][[isinstance(el, ProxyHandler) for el in _opener.handle_open['http']].index(True)].proxies if _opener else None
-    estat = Request('ESTAT', timeout = 100., proxies = proxydic)
-    try:
-        structure = estat.datastructure('DSD_'+code)
-    except Exception:
-        print("{0} not found in the Eurostat server".format(code))
-        return
+    structure = __pandasdmx_get_struct(code)
     dims = list(structure.write().conceptscheme.reset_index()['level_1'][1:])
     try:
         dims.remove('OBS_VALUE')
@@ -241,14 +235,7 @@ def get_sdmx_dic(code, dim):
     Return them as a dictionary.
     """
     
-    from urllib.request import _opener #load ex-novo the built/modified opener
-    proxydic = _opener.handle_open['http'][[isinstance(el, ProxyHandler) for el in _opener.handle_open['http']].index(True)].proxies if _opener else None
-    estat = Request('ESTAT', timeout = 100., proxies = proxydic)
-    try:
-        structure = estat.datastructure('DSD_'+code)
-    except Exception:
-        print("{0} not found in the Eurostat server".format(code))
-        return
+    structure = __pandasdmx_get_struct(code)
     try:
         idx = structure.write().codelist.loc[dim].reset_index()['index'][1:]
         name = structure.write().codelist.loc[dim].reset_index()['name'][1:]
@@ -262,15 +249,13 @@ def get_sdmx_dic(code, dim):
 
 
 
-def get_sdmx_data(code, StartPeriod, EndPeriod, filter_pars, flags=False, verbose=True):
+@estat_proxy
+def get_sdmx_data(estat, code, StartPeriod, EndPeriod, filter_pars, flags=False, verbose=True):
     """
     Download a subset of an Eurostat dataset of a given code available via SDMX service.
     Return it as a list of tuples.
     """
-    
-    from urllib.request import _opener #load ex-novo the built/modified opener
-    proxydic = _opener.handle_open['http'][[isinstance(el, ProxyHandler) for el in _opener.handle_open['http']].index(True)].proxies if _opener else None
-    estat = Request('ESTAT', timeout = 100., proxies = proxydic)
+                
     dims = filter_pars.keys()
     filter_lists = [tuple(zip((d,)*len(filter_pars[str(d)]),filter_pars[str(d)])) for d in dims]
     cart = [el for el in product(*filter_lists)]
@@ -279,37 +264,21 @@ def get_sdmx_data(code, StartPeriod, EndPeriod, filter_pars, flags=False, verbos
     if verbose:
         i = 0
         print("\rProgress: {:3.1%}".format(i), end="\r")
-    if flags:
-        for c in cart:
-            try:
-                resp = estat.data(code, key = dict(c), params = {'startPeriod': str(StartPeriod), 'endPeriod': str(EndPeriod)})
-            except ValueError as e:
-                print("\r" + str(e))
-                return
-            except Exception:
-                print("\r{0} not found in the Eurostat server".format(code))
-                return
+    
+    for c in cart:
+        resp = __pandasdmx_get_data(estat, code, key=dict(c), params={'startPeriod': str(StartPeriod), 'endPeriod': str(EndPeriod)})
+        if flags:
             for s in resp.data.series:
-                data.append(tuple(list(s.key._asdict().values()).__add__([x for pair in [(float(o.value), o.attrib.OBS_STATUS if (len(o.attrib) > 0 and o.attrib._fields[0] == 'OBS_STATUS') else '') for o in s.obs()] for x in pair])))
-            if verbose:
-                i += 1
-                print("\rProgress: {:3.1%}".format(i / cart_len), end="\r")
+                data.append(tuple(list(s.key._asdict().values()).__add__([x for pair in [((o.value), o.attrib.OBS_STATUS if (len(o.attrib) > 0 and o.attrib._fields[0] == 'OBS_STATUS') else '') for o in s.obs()] for x in pair])))
+        else:
+            for s in resp.data.series:
+                data.append(tuple(list(s.key._asdict().values()).__add__([(o.value) for o in s.obs()])))
+        if verbose:
+            i += 1
+            print("\rProgress: {:3.1%}".format(i / cart_len), end="\r")
+    if flags:
         header = list(s.key._fields).__add__([x for pair in [(int(o.dim), o.dim + '_OBS_STATUS') for o in s.obs()] for x in pair]) # only from the last data row
     else:
-        for c in cart:
-            try:
-                resp = estat.data(code, key = dict(c), params = {'startPeriod': str(StartPeriod), 'endPeriod': str(EndPeriod)})
-            except ValueError as e:
-                print("\r" + str(e))
-                return
-            except Exception:
-                print("\r{0} not found in the Eurostat server".format(code))
-                return
-            for s in resp.data.series:
-                data.append(tuple(list(s.key._asdict().values()).__add__([float(o.value) for o in s.obs()])))
-            if verbose:
-                i += 1
-                print("\rProgress: {:3.1%}".format(i / cart_len), end="\r")
         header = list(s.key._fields).__add__([int(o.dim) for o in s.obs()]) # only from the last data row        
     data.insert(0,tuple(header))
     print("")
@@ -322,7 +291,6 @@ def get_sdmx_data(code, StartPeriod, EndPeriod, filter_pars, flags=False, verbos
 def get_sdmx_data_df(code, StartPeriod, EndPeriod, filter_pars, flags=True, verbose=True):
     """
     Download an Eurostat dataset (of a given code).
-    If http proxy is required: proxyinfo = [username, password, url:port].
     Return it as a Pandas dataframe.
     """
     
@@ -336,15 +304,17 @@ def get_sdmx_data_df(code, StartPeriod, EndPeriod, filter_pars, flags=True, verb
 
 
 
-def get_avail_sdmx_df():
+@robust_pandasdmx_request
+@estat_proxy
+def get_avail_sdmx_df(estat):
     """
     Download the dataflow (list of data available via SDMX).
     Return it as a pandas dataframe.
+    
+    Synopsis:
+        get_avail_sdmx_df()
     """
     
-    from urllib.request import _opener #load ex-novo the built/modified opener
-    proxydic = _opener.handle_open['http'][[isinstance(el, ProxyHandler) for el in _opener.handle_open['http']].index(True)].proxies if _opener else None
-    estat = Request('ESTAT', timeout = 100., proxies = proxydic)
     df = estat.dataflow().write()['dataflow']
 
     return df
@@ -374,3 +344,23 @@ def subset_avail_sdmx_df(avail_sdmx_df, keyword):
     """
     
     return avail_sdmx_df[avail_sdmx_df['name'].str.contains(keyword, case=False)]
+
+
+
+
+#-------------------------------------------------------------------------------
+
+
+@robust_pandasdmx_request
+@estat_proxy
+def __pandasdmx_get_struct(estat, code):
+    struct = estat.datastructure('DSD_'+code)
+    return struct
+
+
+
+@robust_pandasdmx_request
+def __pandasdmx_get_data(estat, code, key, params):
+    resp = estat.data(code, key=key, params=params)
+    return resp
+

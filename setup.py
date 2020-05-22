@@ -13,7 +13,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_descr = f.read()
 
 setup(name='eurostat',
-      version='0.1.5',
+      version='0.2.0',
       license='MIT',
       date='2020',
       description="Eurostat Python Package",
@@ -22,9 +22,9 @@ setup(name='eurostat',
       author='Noemi Emanuela Cazzaniga',
       author_email='noemi.cazzaniga@polimi.it',
 #      url='https://bitbucket.org/noemicazzaniga/eurostat/src/master/',
-      keywords='eurostat comext statistics data economics science',
+      keywords='eurostat comext prodcom statistics data economics science',
       classifiers=[
-          'Development Status :: 5 - Production/Stable',
+          'Development Status :: 3 - Alpha',
           'Operating System :: OS Independent',
           'Programming Language :: Python :: 3',
           'License :: OSI Approved :: MIT License',
@@ -41,9 +41,11 @@ setup(name='eurostat',
       install_requires=[
           'pandasdmx',
           'pandas',
+          'requests',
           ],
       packages=find_packages(),
       project_urls={
           'Source': 'https://bitbucket.org/noemicazzaniga/eurostat/src/master/',
+#          'Documentation': '',
       },
       )
