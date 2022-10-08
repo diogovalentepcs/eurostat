@@ -1,0 +1,39 @@
+{% set name = "eurostat" %}
+{% set version = "1.0.0" %}
+
+package:
+  name: "{{ name|lower }}"
+  version: "{{ version }}"
+
+source:
+  url: "https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz"
+  sha256: 
+
+build:
+  number: 0
+  script: "{{ PYTHON }} -m pip install . -vv"
+
+requirements:
+  host:
+    - pandas
+    - pip
+    - python
+    - requests
+  run:
+    - pandas
+    - python
+    - requests
+
+about:
+  home: https://bitbucket.org/noemicazzaniga/eurostat/src/master/
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE.txt
+  summary: "Eurostat Python Package - Tools to read data from Eurostat API."
+  doc_url: https://pypi.org/project/eurostat/
+  doc_source_url: https://bitbucket.org/noemicazzaniga/eurostat/src/master/README.md
+  dev_url: https://bitbucket.org/noemicazzaniga/eurostat/src/master/
+
+extra:
+  recipe-maintainers:
+    - noemicazzaniga

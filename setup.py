@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-@author: Noemi E. Cazzaniga - 2020
+@author: Noemi E. Cazzaniga - 2022
 @email: noemi.cazzaniga@polimi.it
 """
 
@@ -13,16 +13,15 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_descr = f.read()
 
 setup(name='eurostat',
-      version='0.2.1',
+      version='1.0.0',
       license='MIT',
-      date='2020',
+      date='2022',
       description="Eurostat Python Package",
       long_description=long_descr,
       long_description_content_type='text/markdown',
       author='Noemi Emanuela Cazzaniga',
       author_email='noemi.cazzaniga@polimi.it',
-#      url='https://bitbucket.org/noemicazzaniga/eurostat/src/master/',
-      keywords='eurostat comext prodcom statistics data economics science',
+      keywords='faostat comext prodcom statistics data economics science',
       classifiers=[
           'Development Status :: 5 - Production/Stable',
           'Operating System :: OS Independent',
@@ -37,15 +36,13 @@ setup(name='eurostat',
           'Topic :: Scientific/Engineering :: Information Analysis',
           'Topic :: Utilities',
           ],
-      python_requires='>=3.6',
+      project_urls={
+          'Source': 'https://bitbucket.org/noemicazzaniga/eurostat/src/master/',
+      },
+      packages=find_packages('eurostat'),
+      python_requires='>=3.5',
       install_requires=[
-          'pandasdmx<=0.9',
           'pandas',
           'requests',
           ],
-      packages=find_packages(),
-      project_urls={
-          'Source': 'https://bitbucket.org/noemicazzaniga/eurostat/src/master/',
-#          'Documentation': '',
-      },
       )
