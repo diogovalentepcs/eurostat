@@ -458,6 +458,9 @@ Download and usage of Eurostat data is subject to Eurostat's general copyright n
 
 ## History:
 
+### version 1.0.1 (12 Oct 2022):
+* Bug fix (wheel for conda venv).
+
 ### version 1.0.0 (08 Oct 2022):
 
 * Adapted to the new Eurostat API (SDMX 2.1).
