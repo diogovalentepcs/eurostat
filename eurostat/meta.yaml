@@ -1,5 +1,5 @@
 {% set name = "eurostat" %}
-{% set version = "1.0.0" %}
+{% set version = "1.0.1" %}
 
 package:
   name: "{{ name|lower }}"
@@ -7,7 +7,7 @@ package:
 
 source:
   url: "https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz"
-  sha256: 17bbe96f18fe61bdf644b00bb563fcadc085f541477f1ecb83f114a159fcf2fd
+  sha256: 8ddf0a4cc53cf426840bc001f9d09d851b851cbc43c02ee17419cc298ba5554e
 
 build:
   number: 0
@@ -23,6 +23,10 @@ requirements:
     - pandas
     - python
     - requests
+
+test:
+  imports:
+    - eurostat
 
 about:
   home: https://bitbucket.org/noemicazzaniga/eurostat/src/master/

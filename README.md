@@ -171,7 +171,7 @@ If you want the full list of possible values of *par*, set *full=True*, while *f
 Default is *full=True*.
 
 *frmt="list"* makes the function return a list of tuples, where the first element of each tuple is the code value and the second one is its description.
-If *frmt=dict* it returns a dictionary.
+If *frmt="dict"* it returns a dictionary.
 Default is *frmt="list"*.
 
 *lang* allows to download the dictionary in one of the following languages: *"en"*=English, *"fr"*=French, *"de"*=German, when provided by Eurostat. Default is English.

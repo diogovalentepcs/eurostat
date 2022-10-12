@@ -4,8 +4,14 @@
 @email: noemi.cazzaniga@polimi.it
 """
 
-from eurostat.eurostat import *
-from eurostat.__old_sdmx_interface__ import *
+from eurostat.eurostat import get_data, get_data_df,\
+                              get_dic, get_pars, get_par_values,\
+                              get_toc, get_toc_df,\
+                              setproxy, subset_toc_df
+from eurostat.__old_sdmx_interface__ import get_avail_sdmx, get_avail_sdmx_df,\
+                                            get_sdmx_data, get_sdmx_data_df,\
+                                            get_sdmx_dic, get_sdmx_dims,\
+                                            subset_avail_sdmx_df
 
 __all__ = ['get_avail_sdmx', 'get_avail_sdmx_df', 'get_data', 'get_data_df',\
            'get_dic', 'get_pars', 'get_par_values', 'get_sdmx_data', 'get_sdmx_data_df',\
