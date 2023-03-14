@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-@author: Noemi E. Cazzaniga - 2022
+@author: Noemi E. Cazzaniga - 2023
 @email: noemi.cazzaniga@polimi.it
 """
 
@@ -9,9 +9,9 @@ import requests
 import xml.etree.ElementTree as ET
 import json
 import re
-from pandas import DataFrame
+from pandas import DataFrame, Period, period_range
 from gzip import decompress
-from itertools import product
+from itertools import product, combinations
 
 
 __proxydic__ = None
@@ -92,7 +92,9 @@ def setproxy(proxyinfo):
     assert "https" in proxyinfo.keys(), "The key 'https' is missing in proxyinfo."
     assert ":" in proxyinfo["https"][2], "Error in proxy host. It must be in the form: 'url:port'"
     global __proxydic__
-    __proxydic__ = proxyinfo
+    myhttpsquotedpass = requests.utils.quote(proxyinfo['https'][1])
+    myhttpsproxy = proxyinfo['https'][0] + ':' + myhttpsquotedpass + '@' + proxyinfo['https'][2]
+    __proxydic__ = {'https': 'https://' + myhttpsproxy}
 
 
 def get_data(code, flags=False, **kwargs):
@@ -122,13 +124,15 @@ def get_data(code, flags=False, **kwargs):
         nontime_pars = {}
         for k in filter_pars:
             if k == "startPeriod":
-                start = "startPeriod=" + str(filter_pars[k]) + "&"
+                fs = str(filter_pars[k])
+                start = "startPeriod=" + fs + "&"
             elif k == "endPeriod":
-                end = "endPeriod=" + str(filter_pars[k]) + "&"
+                fe = str(filter_pars[k])
+                end = "endPeriod=" + fe + "&"
             else:
                 nontime_pars[k] = filter_pars[k] if type(
                     filter_pars[k]) is list else [filter_pars[k], ]
-
+        
         if len(nontime_pars) > 0:
             filter_lists = [tuple(zip(
                 (d,) * len(nontime_pars[str(d)]), nontime_pars[str(d)])) for d in nontime_pars]

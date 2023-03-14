@@ -3,6 +3,15 @@
 Tools to read data from Eurostat API.
 
 
+# Features
+
+* Read Eurostat data and metadata as list of tuples or as pandas dataframe.
+* Use the new SDMX 2.1 Eurostat web services.
+* Download data from Eurostat, COMEXT, DG COMP, DG ENV, DG GROW.
+* Available from both pip and [conda][condapack]. 
+* MIT license.
+
+
 # Important!
 
 From version 1.0.0, this package implements MAJOR CHANGES.
@@ -15,21 +24,11 @@ I have done my best to make the new Eurostat Python package compatible with the 
 Nevertheless, you may see some differences, also in the output format.
 
 The main differences are in the SDMX functions.
-In particular, OBS_STATUS is not more provided by the API.
+In particular, OBS_STATUS is no more provided by the API.
 It is replaced by a flag, that has different symbols and meanings.
 From version 1.0.0, the SDMX functions of the Eurostat Python package are deprecated, but temporarily kept available.
 These functions will be removed from version 2.0.0 of the Eurostat Python package.
 They always print an alert message, that can be "muted" by setting the argument *noalert=True*.
-
-
-
-# Features
-
-* Read Eurostat data and metadata as list of tuples or as pandas dataframe.
-* Use the new SDMX 2.1 Eurostat web services.
-* Download data from Eurostat, COMEXT, DG COMP, DG ENV, DG GROW.
-* Available from both pip and [conda][condapack]. 
-* MIT license.
 
 
 # Documentation
@@ -296,7 +295,6 @@ eurostat.get_data_df(code, [flags=False], [filter_pars=None], [verbose=False], [
 ```
 
 Read an Eurostat dataset and returns it as pandas dataframe.
-The first element of the list ("the first row") is the data header.
 
 To get a subset, set *filter_pars* (a dictionary where keys are parameter names, values are the wanted items).
 
@@ -457,6 +455,9 @@ Download and usage of Eurostat data is subject to Eurostat's general copyright n
 
 
 ## History:
+
+### version 1.0.2 (14 Mar 2023):
+* Bug fix: proxy setting.
 
 ### version 1.0.1 (12 Oct 2022):
 * Bug fix (wheel for conda venv).
