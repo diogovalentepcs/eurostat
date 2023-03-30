@@ -456,6 +456,9 @@ Download and usage of Eurostat data is subject to Eurostat's general copyright n
 
 ## History:
 
+### version 1.0.3 (30 Mar 2023):
+* Bug fix: proxy setting.
+
 ### version 1.0.2 (14 Mar 2023):
 * Bug fix: proxy setting.
 

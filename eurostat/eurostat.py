@@ -92,8 +92,11 @@ def setproxy(proxyinfo):
     assert "https" in proxyinfo.keys(), "The key 'https' is missing in proxyinfo."
     assert ":" in proxyinfo["https"][2], "Error in proxy host. It must be in the form: 'url:port'"
     global __proxydic__
-    myhttpsquotedpass = requests.utils.quote(proxyinfo['https'][1])
-    myhttpsproxy = proxyinfo['https'][0] + ':' + myhttpsquotedpass + '@' + proxyinfo['https'][2]
+    try:
+        myhttpsquotedpass = requests.utils.quote(proxyinfo['https'][1])
+        myhttpsproxy = proxyinfo['https'][0] + ':' + myhttpsquotedpass + '@' + proxyinfo['https'][2]
+    except:
+        myhttpsproxy = proxyinfo['https'][2]
     __proxydic__ = {'https': 'https://' + myhttpsproxy}
 
 
