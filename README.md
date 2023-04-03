@@ -420,7 +420,7 @@ If authentication is not needed, set *username* and *password* to *None*.
 Example:
 ```python
 >>> import eurostat
->>> proxyinfo = {'https': ['myuser', 'mypassword', 'url:port']}
+>>> proxyinfo = {'https': ['myuser', 'mypassword', 'http://url:port']}
 >>> eurostat.setproxy(proxyinfo)
 ```
 
@@ -456,11 +456,14 @@ Download and usage of Eurostat data is subject to Eurostat's general copyright n
 
 ## History:
 
+### version 1.0.4 (03 Apr 2023):
+* Changed input of setproxy to read the full address.
+
 ### version 1.0.3 (30 Mar 2023):
 * Bug fix: proxy setting.
 
 ### version 1.0.2 (14 Mar 2023):
-* Bug fix: proxy setting.
+* Bug fix: proxy setting. Deprecated.
 
 ### version 1.0.1 (12 Oct 2022):
 * Bug fix (wheel for conda venv).

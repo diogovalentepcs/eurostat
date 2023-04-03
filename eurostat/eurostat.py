@@ -9,9 +9,9 @@ import requests
 import xml.etree.ElementTree as ET
 import json
 import re
-from pandas import DataFrame, Period, period_range
+from pandas import DataFrame
 from gzip import decompress
-from itertools import product, combinations
+from itertools import product
 
 
 __proxydic__ = None
@@ -82,7 +82,7 @@ class __Uri__():
 def setproxy(proxyinfo):
     """
     Set the proxies.
-    If a proxy is required: proxyinfo = {"https": [username, password, url:port]}.
+    If a proxy is required: proxyinfo = {"https": [username, password, 'http://url:port']}.
     If authentication is not needed, set username and password = None.
     Return None.
     """
@@ -90,14 +90,16 @@ def setproxy(proxyinfo):
     assert len(proxyinfo) == 1, "Error in proxyinfo."
     assert type(proxyinfo) is dict, "Error: 'proxyinfo' must be a dictionary."
     assert "https" in proxyinfo.keys(), "The key 'https' is missing in proxyinfo."
-    assert ":" in proxyinfo["https"][2], "Error in proxy host. It must be in the form: 'url:port'"
+    assert (":" in proxyinfo["https"][2] and
+            "//" in proxyinfo["https"][2]), "Error in proxy host. It must be in the form: 'http://url:port'"
     global __proxydic__
+    [protocol, url_port] = proxyinfo['https'][2].split('//')
     try:
         myhttpsquotedpass = requests.utils.quote(proxyinfo['https'][1])
-        myhttpsproxy = proxyinfo['https'][0] + ':' + myhttpsquotedpass + '@' + proxyinfo['https'][2]
+        myhttpsproxy = proxyinfo['https'][0] + ':' + myhttpsquotedpass + '@' + url_port
     except:
-        myhttpsproxy = proxyinfo['https'][2]
-    __proxydic__ = {'https': 'https://' + myhttpsproxy}
+        myhttpsproxy = url_port
+    __proxydic__ = {'https': protocol + '//' + myhttpsproxy}
 
 
 def get_data(code, flags=False, **kwargs):
@@ -286,7 +288,11 @@ def get_dic(code, par, **kwargs):
     assert lang in lang_opt, "Error: 'lang' must be " + " or ".join(lang_opt)
     
     agencyId, provider, dims = __get_dims_info__(code)
-    par_id = [i[2] for i in dims if i[1].lower() == par.lower()][0]
+    try:
+        par_id = [i[2] for i in dims if i[1].lower() == par.lower()][0]
+    except:
+        print('Error: ' + par + ' not in ' + code)
+        raise
     url = __Uri__.BASE_URL[provider] + "codelist/" + agencyId + \
         "/"+ par_id + "/latest?format=TSV&compressed=true&lang=" + lang
     resp = __get_resp__(url)
