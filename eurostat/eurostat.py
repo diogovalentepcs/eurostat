@@ -242,16 +242,65 @@ def get_data(code, flags=False, **kwargs):
         return None
 
 
-def get_data_df(code, flags=False, **kwargs):
+def get_data_df(code, format="ts-row", flags=False, **kwargs):
     """
     Download an Eurostat dataset (of given code).
     Return it as a Pandas dataframe.
+
+    Parameters
+    ----------
+    code : str
+        The code of the Eurostat dataset
+    format : str, optional
+        The intended format of the dataframe, as downloadable from Eurostast. If format is unknown, returns None
+            "ts-row": each row is a time-series
+            "obs-row": each row is an observation
+        default: ts-row
+    flags : bool, optional
+        flag=True downloads also the flags associated to the data. Pay attention: the data format changes if flags is True or not
+        default: False
     """
+
 
     d = get_data(code, flags, **kwargs)
 
     if d != None:
-        return DataFrame(d[1:], columns=d[0])
+        df = DataFrame(d[1:], columns=d[0])
+        if format == "ts-row":
+            return df
+        elif format == "obs-row":
+            try: 
+                # Retrieve the id of the column where the time-series starts, which always includes a backslash (e.g.: "indicators\TIME_PERIOD")
+                index_with_slash = df.columns.str.contains(r'\\').argmax()
+                # Retrieve the column names until time-series
+                id_vars = df.iloc[:, : index_with_slash + 1].columns.tolist()
+                # Get the column name with '\'
+                column_with_backslash = df.columns[index_with_slash]
+                # Split the column name by backslash into to retrieve tha last column before time-series name and the time-series name (usually "TIME-PERIOD")
+                split_strings = column_with_backslash.split('\\')
+                non_ts_name = split_strings[0]
+                ts_name = split_strings[1]
+
+                # Melt the dataframe
+                # Get df without flags (if flags = True, then some time-series columns return with "_flag")
+                values_columns = df.columns[~df.columns.str.contains('_flag')]
+                obs_row_df = df[values_columns].melt(id_vars = id_vars, var_name=ts_name, value_name="OBS_VALUE")
+                # If flags = True, must removs "_value" from column name
+                obs_row_df[ts_name] = obs_row_df[ts_name].str.replace('_value', '')
+                # Append flags if flags = True
+                if flags == True:
+                    flag_columns = df.columns[~df.columns.str.contains('_value')]
+                    flags = df[flag_columns].melt(id_vars = id_vars, var_name=ts_name, value_name="flags")
+                    flags['TIME_PERIOD'] = flags['TIME_PERIOD'].str.replace('_flag', '')
+                    obs_row_df.loc[:, "flags"] = flags["flags"]
+                
+                # Rename the column with '\'
+                obs_row_df =  obs_row_df.rename(columns={column_with_backslash: non_ts_name}).reset_index(drop=True)
+                return obs_row_df
+            except:
+                return
+        else:
+            return
     else:
         return
 
