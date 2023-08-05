@@ -1,0 +1,7 @@
+# MAC OS Files
+.DS_Store
+
+# Batch Files
+.cmd
+.bat
+.btm
