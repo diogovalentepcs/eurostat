@@ -2,6 +2,23 @@
 
 Tools to read data from Eurostat API.
 
+# Disclaimer
+
+This repository has been forked to [BitBucket](https://bitbucket.org/dvp-projects/eurostat/src/master/) from the orginal [Eurostat package](https://bitbucket.org/noemicazzaniga/eurostat/src/master/), by Noemi Emanuela Cazzaniga, at version 1.0.4 on Aug 05, 2023. The goal was to improve usability and to add new features for better data analysis. A copy of this repository is also available in my [GitHub](https://github.com/diogovalentepcs/eurostat/tree/master). The changes are hosted here for easy access, for my own perosnal use (in hte cntext of my Master Thesis) but also for those interested in new functionalities.
+
+The new features are listed below:
+1. **Pandas dataFrame format specification**: allows the user to retrieve the data in a more readable and usable format (1 row = 1 observation), instead of the default format (1 row = 1 time-series);
+2. **Metadata passing**: allows the user to recieve the metadata from the intended datasets, by itself or when fetching the dataset. Useful for datasets that require the specification of attributes to reduce the size of the query;
+3. **Data quality reporting**: allows the user to collect relevant information about the quality of the dataset, including missing data, flags, and data mismatches
+
+Tu use this package, download or clone this repo and add the follwing to your code:
+```python
+# Use local package instead of original package
+import sys
+sys.path.insert(0, '[LOCAL_PATH_TO_REPO]\eurostat')
+```
+
+**⚠⚠ The following section of this README was fully written by the original author, with the exception of the example sections related to the new features added by me. License remains under the original authors copyrights ⚠⚠** 
 
 # Features
 
