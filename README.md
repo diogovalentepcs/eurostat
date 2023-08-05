@@ -406,6 +406,62 @@ Values can be number, string or list and generally are derived by *eurostat.get_
 639    A      GD  S1_S2    Y_LT1  ...        NaN         :         6.9          
 ```
 
+#### Example: Download a subset of data from a dataset in melted format (1 observation per row) without flags as pandas dataframe
+
+```python
+>>> import eurostat
+>>> code = 'GOV_10DD_SLGD'
+>>> pars = eurostat.get_pars(code)
+>>> pars
+['freq', 'na_item', 'sector', 'maturity', 'unit', 'geo']
+>>> par_values = eurostat.get_par_values(code, 'geo')
+>>> par_values
+['BE', 'DE', 'ES', 'AT']
+>>> my_filter_pars = {'endPeriod': 2020, 'geo': ['AT','BE']}
+>>> data = eurostat.get_data_df(code, format="obs-row", flags=False, filter_pars=my_filter_pars)
+>>> data
+   freq na_item sector maturity     unit geo TIME_PERIOD  OBS_VALUE
+0     A      F3  S1_S2    TOTAL  MIO_EUR  AT        2019     5190.5
+1     A      F3  S1_S2    TOTAL  MIO_NAC  AT        2019     5190.5
+2     A      F3  S1_S2    TOTAL   PC_TOT  AT        2019      100.0
+3     A      F3  S1_S2    Y_GT1  MIO_EUR  AT        2019     5190.5
+4     A      F3  S1_S2    Y_GT1  MIO_NAC  AT        2019     5190.5
+..  ...     ...    ...      ...      ...  ..         ...        ...
+79    A      F4  S1_S2    Y_LT1  MIO_NAC  BE        2020     1646.0
+80    A      F4  S1_S2    Y_LT1   PC_TOT  BE        2020        4.3
+81    A      GD  S1_S2    TOTAL  MIO_EUR  BE        2020    78042.0
+82    A      GD  S1_S2    TOTAL  MIO_NAC  BE        2020    78042.0
+83    A      GD  S1_S2    TOTAL   PC_TOT  BE        2020      100.0
+```
+
+#### Example: Download a subset of data from a dataset in melted format (1 observation per row) with flags as pandas dataframe
+
+```python
+>>> import eurostat
+>>> code = 'GOV_10DD_SLGD'
+>>> pars = eurostat.get_pars(code)
+>>> pars
+['freq', 'na_item', 'sector', 'maturity', 'unit', 'geo']
+>>> par_values = eurostat.get_par_values(code, 'geo')
+>>> par_values
+['BE', 'DE', 'ES', 'AT']
+>>> my_filter_pars = {'endPeriod': 2020, 'geo': ['AT','BE']}
+>>> data = eurostat.get_data_df(code, format="obs-row", flags=True, filter_pars=my_filter_pars)
+>>> data
+   freq na_item sector maturity     unit geo TIME_PERIOD  OBS_VALUE flags
+0     A      F3  S1_S2    TOTAL  MIO_EUR  AT        2019     5190.5     a
+1     A      F3  S1_S2    TOTAL  MIO_NAC  AT        2019     5190.5
+2     A      F3  S1_S2    TOTAL   PC_TOT  AT        2019      100.0
+3     A      F3  S1_S2    Y_GT1  MIO_EUR  AT        2019     5190.5     b
+4     A      F3  S1_S2    Y_GT1  MIO_NAC  AT        2019     5190.5
+..  ...     ...    ...      ...      ...  ..         ...        ...   ...
+79    A      F4  S1_S2    Y_LT1  MIO_NAC  BE        2020     1646.0
+80    A      F4  S1_S2    Y_LT1   PC_TOT  BE        2020        4.3
+81    A      GD  S1_S2    TOTAL  MIO_EUR  BE        2020    78042.0     c
+82    A      GD  S1_S2    TOTAL  MIO_NAC  BE        2020    78042.0
+83    A      GD  S1_S2    TOTAL   PC_TOT  BE        2020      100.0
+```
+
 ## In case you need to use a proxy:
 
 Before doing anything else, you must configure the https proxy.

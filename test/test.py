@@ -7,6 +7,11 @@
 
 ## Examples in README.md
 
+"""
+# Use local package instead of original package
+import sys
+sys.path.insert(0, 'local\\path\\to\\package\\eurostat')
+"""
 
 import eurostat
 
@@ -107,3 +112,38 @@ data = eurostat.get_data_df(code, True, filter_pars=my_filter_pars)
 print('data =')
 print(data)
 
+code = 'GOV_10DD_SLGD'
+pars = eurostat.get_pars(code)
+print('pars =')
+print(pars)
+par_values = eurostat.get_par_values(code, 'geo')
+print('par_values= ')
+print(par_values)
+my_filter_pars = {'endPeriod': 2020, 'geo': ['AT','BE']}
+data = eurostat.get_data_df(code, flags=True, filter_pars=my_filter_pars)
+print('data =')
+print(data)
+ 
+code = 'GOV_10DD_SLGD'
+pars = eurostat.get_pars(code)
+print('pars =')
+print(pars)
+par_values = eurostat.get_par_values(code, 'geo')
+print('par_values= ')
+print(par_values)
+my_filter_pars = {'endPeriod': 2020, 'geo': ['AT','BE']}
+data = eurostat.get_data_df(code, format="obs-row", flags=False, filter_pars=my_filter_pars)
+print('data =')
+print(data)
+
+code = 'GOV_10DD_SLGD'
+pars = eurostat.get_pars(code)
+print('pars =')
+print(pars)
+par_values = eurostat.get_par_values(code, 'geo')
+print('par_values= ')
+print(par_values)
+my_filter_pars = {'endPeriod': 2020, 'geo': ['AT','BE']}
+data = eurostat.get_data_df(code, format="obs-row", flags=True, filter_pars=my_filter_pars)
+print('data =')
+print(data)
